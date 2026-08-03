@@ -187,9 +187,9 @@ CentroidAttLockMassList,
                        
 DesiXStart,0.0
 DesiYStart,0.0
-DesiXLength,1.28
+DesiXLength,1.06
 DesiXStep,0.025
 DesiXRate,100
-DesiYLength,1.4024999999999999
+DesiYLength,1.2225
 DesiYStep,0.025
 DesiSlot,A
