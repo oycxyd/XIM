@@ -70,12 +70,11 @@ This means a time per line of ~{dx*1e3/velocity}s (plus flyback), and {int(dy*1e
     today = datetime.date.today()
     prefix = today.strftime('%Y_%m_%d')
     # folder where .exp will be saved
-    # acq_path = 'C:/MassLynx/Default.pro/Acqudb'
-    acq_path = 'C:/Users/olive/Dropbox/FIM/Scripts'
+    acq_path = 'C:/Users/pjlai/Desktop/FIM CL3/XIM'
   
     # copy data from template file
     # with open('C:/MassLynx/Default.pro/Acqudb/template_negative_sensitive_10Hz.exp', 'r') as template:
-    with open('C:/Users/olive/Dropbox/FIM/Scripts/template_negative_sensitive_10Hz.exp', 'r') as template:
+    with open('C:/Users/pjlai/Desktop/FIM CL3/XIM/template_negative_sensitive_10Hz.exp', 'r') as template:
         coretxt = template.readlines()
     # generate new experiment file
     new_exp_fn = f'{acq_path}/{prefix}_{fn}.exp'
@@ -155,7 +154,7 @@ class Exp():
     def toggle_shutter(self):
         self.core.set_property("SC10","SC10 Command:", 'ens')
     def trigger_ms(self):
-        self.mstrig.write(b'2')
+        self.mstrig.write(b'1')
 #    def move_z(self, distance_mm):
 #        self.zstage.move(distance_mm)
 
@@ -221,19 +220,11 @@ class Exp():
             continue
        
        
-    # def sample_unload(self):
-    #     self.zstage = _init_Z_stage()
-    #     current_a1_position = self.a1.get_position()
-    #     distance_mm = float(130) - current_a1_position/10^7
-    #     self.a1.move_relative(distance_mm,
-    #                           **self.unit_args)
+    def sample_unload(self):
+        self.core.set_xy_position(-25000,50000)
    
-    # def sample_load(self):
-    #     self.a1.move_relative(50,
-    #                           wait_until_idle=True,
-    #                           velocity = 250,
-    #                           velocity_unit = 'um/s',
-    #                           **self.unit_args)
+    def sample_load(self):
+        self.core.set_xy_position(-55000,50000)
    
    
     def single_raster(self, velocity_um_s, length_x, step_y):
@@ -348,12 +339,14 @@ class Exp():
         except:
             print('Error!')
 
-    def calculate_ROI (self,xlist = [], ylist = [],x_offset = 121.984, y_offset = 193.984):
-        image_width = round((np.max(ylist)-np.min(ylist)+87.552)/1000,2)
-        image_height = round((np.max(xlist)-np.min(xlist)+183.296)/1000,2)
+    def calculate_ROI (self,xlist = [], ylist = [],x_offset = -274, y_offset = 158, x_flip = 1, y_flip = 1):
+        ROI_height = self.core.get_image_height()*self.core.get_pixel_size_um()
+        ROI_width = self.core.get_image_width()*self.core.get_pixel_size_um()
+        image_width = round((np.max(ylist)-np.min(ylist)+ROI_width/2)/1000,2)
+        image_height = round((np.max(xlist)-np.min(xlist)+ROI_height/2)/1000,2)
         # print(x_gind)
         # print(y_gind)
-        start_pos = [np.min(xlist)-183.296/2+x_offset,np.min(ylist)-87.552/2+y_offset]
+        start_pos = [np.min(xlist)-x_flip*(ROI_width/2)+x_offset,np.min(ylist)-y_flip*(ROI_height/2)+y_offset]
         print('the ROI starting position will be '+str(np.round(start_pos,decimals=2))+' & the size will be ')
         print(str(image_width)+ ' mm by')
         print(str(image_height)+ 'mm')
